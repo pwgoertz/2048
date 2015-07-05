@@ -10,6 +10,31 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager.on("restart", this.restart.bind(this));
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
+
+  var map_vector = {
+    0: { x: 0,  y: -1 }, // Up
+    1: { x: 1,  y: 0 },  // Right
+    2: { x: 0,  y: 1 },  // Down
+    3: { x: -1, y: 0 }   // Left
+  };
+
+  // Get the vector representing the chosen direction
+  this.getVector = function (direction) {
+    // Vectors representing tile movement
+    return map_vector[direction];
+  };
+
+  var sequence_map = {};
+  var recur = { val:2, pred:1, succ:1 };
+  for(var i=0; i<20; ++i )
+  {
+    sequence_map[recur.val] = {};
+    sequence_map[recur.val][recur.pred] = true;
+    sequence_map[recur.val][recur.succ] = true;
+    recur = { val:recur.succ, pred:recur.val, succ:(recur.val + recur.pred) };
+  }
+  ;
+
   this.setup();
 }
 
@@ -188,19 +213,6 @@ GameManager.prototype.move = function (direction) {
 
     this.actuate();
   }
-};
-
-// Get the vector representing the chosen direction
-GameManager.prototype.getVector = function (direction) {
-  // Vectors representing tile movement
-  var map = {
-    0: { x: 0,  y: -1 }, // Up
-    1: { x: 1,  y: 0 },  // Right
-    2: { x: 0,  y: 1 },  // Down
-    3: { x: -1, y: 0 }   // Left
-  };
-
-  return map[direction];
 };
 
 // Build a list of positions to traverse in the right order
