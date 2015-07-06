@@ -25,15 +25,21 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   };
 
   var sequence_map = {};
-  var recur = { val:2, pred:1, succ:1 };
-  for(var i=0; i<20; ++i )
-  {
-    sequence_map[recur.val] = {};
-    sequence_map[recur.val][recur.pred] = true;
-    sequence_map[recur.val][recur.succ] = true;
-    recur = { val:recur.succ, pred:recur.val, succ:(recur.val + recur.pred) };
+  //var recur = { val:2, pred:1, succ:1 };
+  //for(var i=0; i<20; ++i )
+  //{
+  //  sequence_map[recur.val] = {};
+  //  sequence_map[recur.val][recur.pred] = true;
+  //  sequence_map[recur.val][recur.succ] = true;
+  //  recur = { val:recur.succ, pred:recur.val, succ:(recur.val + recur.pred) };
+  //}
+  for (var i=2; i<=65536; i += i ){
+    sequence_map[i] = {};
+    sequence_map[i][i] = true;
   }
-  ;
+  this.tilesCanMerge = function (first, second) {
+    return second.value in sequence_map[first.value]
+  }
 
   this.setup();
 }
@@ -178,8 +184,8 @@ GameManager.prototype.move = function (direction) {
         var next      = self.grid.cellContent(positions.next);
 
         // Only one merger per row traversal?
-        if (next && next.value === tile.value && !next.mergedFrom) {
-          var merged = new Tile(positions.next, tile.value * 2);
+        if (next && self.tilesCanMerge(next, tile) && !next.mergedFrom) {
+          var merged = new Tile(positions.next, next.value + tile.value);
           merged.mergedFrom = [tile, next];
 
           self.grid.insertTile(merged);
